@@ -16,7 +16,8 @@ def parse_conllu(corpus: List[conllu.models.TokenList]) -> List[dict]:
     # process each sentence of a corpus
     sents, annot = [], []
     for sent in corpus:
-        sents.append(sent.metadata['text'])
+        if len(sents) > 1:
+            sents.append(sent.metadata['text'])
 
         # process each token of a sentence
         s = []

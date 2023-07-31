@@ -18,30 +18,29 @@ def demo_corpus(file_in, file_out):
     for line in lines:
         id, sent = line.split('\t')
         doc = nlp(sent)
-        # spacy conll format
-        conll = doc._.conll_str
-        doc = nlp(text)
         anno = []
         # Iterate over the tokens in the document
-        for token in doc:
+        for i, token in enumerate(doc):
             # Create a dictionary for each token
             token_dict = {
+                'id': i,
                 'text': token.text,
                 'lemma': token.lemma_,
                 'upos': token.pos_,
                 'xpos': token.tag_,
-                'dep': token.dep_,
+                'deprel': token.dep_,
                 'head': token.head.text,
                 'children': [child.text for child in token.children]
             }
             # Append the token dictionary to the dependency tree
             anno.append(token_dict)
-            # use content lemmata as headwords
-            lemmas_content = [tok.get('lemma') for tok in anno if tok.get('upos') in {'NOUN', 'VERB', 'ADJ'}]
-            for headword in lemmas_content:
-                factor = quaxa.total_score(
+        print(anno)
+        # use content lemmata as headwords
+        lemmas_content = [tok.get('lemma') for tok in anno if tok.get('upos') in {'NOUN', 'VERB', 'ADJ'}]
+        for headword in lemmas_content:
+            factor = quaxa.total_score(
                             headword=headword, txt=sent, annotation=anno)
-                scores.append([id, sent, headword, factor])
+            scores.append([id, sent, headword, factor])
     with open(file_out, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['ID', 'Sentence', 'Headword', 'Score'])
