@@ -2,7 +2,6 @@ import csv
 import conllu
 import random
 import quaxa
-import quaxa.reader
 
 random.seed(42)
 
@@ -21,14 +20,28 @@ def demo_corpus(file_in, file_out):
         doc = nlp(sent)
         # spacy conll format
         conll = doc._.conll_str
-        # parse annottaion
-        _, anno = quaxa.reader.parse_conllu(conll)
-        # use content lemmata as headwords
-        lemmas_content = [tok.get('lemma') for tok in anno if tok.get('upos') in {'NOUN', 'VERB', 'ADJ'}]
-        for headword in lemmas_content:
-            factor = quaxa.total_score(
-                        headword=headword, txt=sent, annotation=anno)
-            scores.append([id, sent, headword, factor])
+        doc = nlp(text)
+        anno = []
+        # Iterate over the tokens in the document
+        for token in doc:
+            # Create a dictionary for each token
+            token_dict = {
+                'text': token.text,
+                'lemma': token.lemma_,
+                'upos': token.pos_,
+                'xpos': token.tag_,
+                'dep': token.dep_,
+                'head': token.head.text,
+                'children': [child.text for child in token.children]
+            }
+            # Append the token dictionary to the dependency tree
+            anno.append(token_dict)
+            # use content lemmata as headwords
+            lemmas_content = [tok.get('lemma') for tok in anno if tok.get('upos') in {'NOUN', 'VERB', 'ADJ'}]
+            for headword in lemmas_content:
+                factor = quaxa.total_score(
+                            headword=headword, txt=sent, annotation=anno)
+                scores.append([id, sent, headword, factor])
     with open(file_out, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['ID', 'Sentence', 'Headword', 'Score'])
