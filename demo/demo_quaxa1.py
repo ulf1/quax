@@ -1,9 +1,6 @@
 import conllu
-import random
 import quaxa
 import quaxa.reader
-
-random.seed(42)
 
 
 def demo():

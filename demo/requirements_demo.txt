@@ -1,0 +1,2 @@
+spacy>=3.5
+spacy_conll>=3.4
